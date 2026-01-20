@@ -1,0 +1,10 @@
+streamlit
+pandas
+numpy
+opencv-python-headless
+pillow
+transformers
+torch
+ultralytics
+folium
+streamlit-folium
