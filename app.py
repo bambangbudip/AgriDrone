@@ -2,6 +2,12 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import cv2
+try:
+    import cv2
+except ImportError:
+    import os
+    os.system('pip install opencv-python-headless')
+    import cv2
 import sqlite3
 import hashlib
 import os
