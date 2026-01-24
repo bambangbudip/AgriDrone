@@ -42,13 +42,13 @@ def load_all_engines():
 processor, seg_model, yolo_model = load_all_engines()
 
 # --- UI CONFIG ---
-st.set_page_config(page_title="AgroScan Pro Expert", layout="wide")
+st.set_page_config(page_title="AgriDrone Insight", layout="wide")
 
 # --- LOGIN LOGIC ---
 if not st.session_state.auth:
     _, col_login, _ = st.columns([1, 1.2, 1])
     with col_login:
-        st.title("🌱 AgroScan Enterprise")
+        st.title("AgriDrone Insight Enterprise")
         with st.container(border=True):
             u = st.text_input("Username")
             p = st.text_input("Password", type="password")
@@ -63,14 +63,14 @@ else:
         st.session_state.auth = False
         st.rerun()
 
-    tab1, tab2, tab3 = st.tabs(["🔍 Diagnostic Expert", "📜 History Map", "🤖 AI Roadmap & NPK Reference"])
+    tab1, tab2, tab3 = st.tabs(["Diagnostic Citra", "Riwayat Peta", "AI Roadmap & NPK Reference"])
 
     with tab1:
         col_ctrl, col_map = st.columns([1.5, 1])
         
         with col_map:
-            st.subheader("📍 Location Tagging")
-            m = folium.Map(location=[-7.2504, 112.7688], zoom_start=14)
+            st.subheader("Informasi Lokasi")
+            m = folium.Map(location=[-7.132033, 110.405796], zoom_start=14)
             m.add_child(folium.LatLngPopup())
             map_data = st_folium(m, height=350, key="map_v11")
             lat = map_data['last_clicked']['lat'] if map_data and map_data['last_clicked'] else -7.2504
@@ -78,10 +78,10 @@ else:
             lahan_label = st.text_input("Label Lahan", "Blok A")
 
         with col_ctrl:
-            st.subheader("📸 Imagery Diagnostic")
+            st.subheader("Diagnostic Citra")
             files = st.file_uploader("Upload Drone Imagery (Max 50)", type=['jpg','jpeg','png'], accept_multiple_files=True)
             
-            if files and st.button("🚀 RUN FULL AI DIAGNOSTIC"):
+            if files and st.button("JALANKAN DIAGNOSTIC AI"):
                 results = []
                 bar = st.progress(0)
                 
@@ -111,7 +111,7 @@ else:
                     # Deteksi Hama (Texture Roughness Analysis)
                     edges = cv2.Canny(img_np, 100, 200)
                     roughness = np.count_nonzero(edges) / edges.size
-                    hama_issue = "Peringatan Hama!" if roughness > 0.06 else "Aman dari Hama"
+                    hama_issue = "Peringatan Hama! Segera periksa tanaman budidaya!" if roughness > 0.06 else "Aman dari Hama"
                     
                     # 3. YOLO DETECTOR
                     yolo_res = yolo_model(img_pil)[0]
@@ -152,14 +152,14 @@ else:
             r4.image(cv2.Canny(res['img'], 100, 200), caption="Pathology Pattern")
 
     with tab2:
-        st.subheader("📜 Historical Spatial Data")
+        st.subheader("Historical Spatial Data")
         df = pd.read_sql_query(f"SELECT * FROM history WHERE username='{st.session_state.user}'", conn)
         st.dataframe(df, use_container_width=True)
 
     with tab3:
-        st.header("🧠 AI Expert Roadmap")
+        st.header("AI Expert Roadmap")
         
-        st.subheader("📊 Tabel Referensi Defisiensi Nutrisi (Standar TIP)")
+        st.subheader("Tabel Referensi Defisiensi Nutrisi (Standar TIP)")
         st.markdown("""
         Tabel ini digunakan oleh AI Expert System untuk mengklasifikasikan masalah pada lahan Anda:
         """)
