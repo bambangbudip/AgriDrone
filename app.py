@@ -176,7 +176,7 @@ else:
 
         st.markdown("""
         ---
-        ### 🚀 Future Development
+        ### Future Development
         1. **AI Carbon Sequestration:** Menghitung serapan karbon berdasarkan luas biomassa.
         2. **Multi-Spectral Drone Support:** Integrasi sensor NIR (Near-Infrared) untuk NDVI asli.
         3. **Autonomous Spraying:** Koneksi otomatis ke drone penyemprot pestisida berbasis titik koordinat hama.
