@@ -133,4 +133,58 @@ else:
                         st.session_state.scan_result = {
                             "mask": mask, "yolo": yolo_res.plot(), "score": health, 
                             "yield": f"{health*0.08:.1f} Ton/Ha", "advice": advice, 
-                            "issue": f"{nutrisi
+                            "issue": f"{nutrisi_issue} & {hama_issue}", "img": img_np
+                        }
+                    bar.progress((idx + 1) / len(files))
+                conn.commit()
+                st.success("Analisis Selesai!")
+
+        if st.session_state.scan_result:
+            res = st.session_state.scan_result
+            st.divider()
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Vegetation Health", f"{res['score']:.1f}%")
+            c2.metric("Yield Forecast", res['yield'])
+            c3.metric("Expert Status", "Active")
+            
+            st.warning(f"⚠️ **Temuan AI:** {res['issue']}")
+            st.info(f"💡 **Rekomendasi:** {res['advice']}")
+            
+            r1, r2, r3, r4 = st.columns(4)
+            r1.image(res['mask'], caption="Biomass Mask")
+            r2.image(res['yolo'], caption="Object Detection")
+            
+            # Stress Map (Pseudo-NDVI)
+            b, g, red_c = cv2.split(res['img'])
+            stress = cv2.applyColorMap(cv2.normalize(red_c.astype(float)-g.astype(float), None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8), cv2.COLORMAP_JET)
+            r3.image(stress, caption="Spectral Stress Map")
+            r4.image(cv2.Canny(res['img'], 100, 200), caption="Pathology Pattern")
+
+    with tab2:
+        st.subheader("Historical Spatial Data")
+        df = pd.read_sql_query(f"SELECT * FROM history WHERE username='{st.session_state.user}'", conn)
+        st.dataframe(df, use_container_width=True)
+
+    with tab3:
+        st.header("AI Expert Roadmap")
+        
+        st.subheader("Tabel Referensi Defisiensi Nutrisi (Standar TIP)")
+        st.markdown("""
+        Tabel ini digunakan oleh AI Expert System untuk mengklasifikasikan masalah pada lahan Anda:
+        """)
+        
+        npk_data = {
+            "Unsur Hara": ["Nitrogen (N)", "Fosfor (P)", "Kalium (K)", "Serangan Hama"],
+            "Gejala Visual": ["Daun bawah menguning (Klorosis)", "Daun hijau tua keunguan", "Pinggiran daun terbakar", "Lubang/Pola kasar pada kanopi"],
+            "Analisis Spektral AI": ["R/G Ratio Tinggi (>0.95)", "Low Reflectance di kanal Red", "High Edge Density pada tepi", "High Roughness Index (>0.06)"],
+            "Rekomendasi Tindakan": ["Pupuk Urea / ZA", "Pupuk SP-36 / TSP", "Pupuk KCl", "Insektisida / Biopestisida"]
+        }
+        st.table(pd.DataFrame(npk_data))
+
+        st.markdown("""
+        ---
+        ### Future Development
+        1. **AI Carbon Sequestration:** Menghitung serapan karbon berdasarkan luas biomassa.
+        2. **Multi-Spectral Drone Support:** Integrasi sensor NIR (Near-Infrared) untuk NDVI asli.
+        3. **Autonomous Spraying:** Koneksi otomatis ke drone penyemprot pestisida berbasis titik koordinat hama.
+        """)
